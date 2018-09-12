@@ -37,7 +37,7 @@ task<GenerateSource>("generate") {
     outputDir.set(source.sourceDir)
 }
 
-configure<FooExtension> {
+configure<SourceGenerationExtension> {
     // Configure the locations
     // Don't need to reconfigure the task's properties. These are automatically updated as the extension properties change
     sourceDir.set(project.layout.buildDirectory.dir("generated-source"))
