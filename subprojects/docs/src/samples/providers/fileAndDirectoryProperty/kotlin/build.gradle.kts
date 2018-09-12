@@ -46,4 +46,4 @@ configure<SourceGenerationExtension> {
 
 // Change the build directory
 // Don't need to reconfigure the extension or task properties. These are automatically updated as the build directory changes
-buildDir = "output"
+buildDir = file("output")

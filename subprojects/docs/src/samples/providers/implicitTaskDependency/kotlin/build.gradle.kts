@@ -36,4 +36,4 @@ producer.outputFile.set(layout.buildDirectory.file("file.txt"))
 
 // Change the build directory.
 // Don't need to update producer.outputFile and consumer.inputFile. These are automatically updated as the build directory changes
-setBuildDir("output")
+buildDir = file("output")
