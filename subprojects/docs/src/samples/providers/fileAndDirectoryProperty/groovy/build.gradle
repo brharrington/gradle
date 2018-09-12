@@ -36,7 +36,7 @@ class GenerateSource extends DefaultTask {
 project.extensions.create('source', SourceGenerationExtension, project.objects)
 
 // Create the source generation task
-task generated(type: GenerateSource) {
+task generate(type: GenerateSource) {
     // Attach configuration from the project extension
     // Note that the values of the project extension have not been configured yet
     configFile = project.source.configFile
