@@ -1,6 +1,6 @@
 
 > Task :generate
-configuration file = /home/user/gradle/samples/groovy/src/main/config.txt
+configuration file = /home/user/gradle/samples/groovy/src/config.txt
 output dir = /home/user/gradle/samples/groovy/output/generated-source
 
 BUILD SUCCESSFUL in 0s

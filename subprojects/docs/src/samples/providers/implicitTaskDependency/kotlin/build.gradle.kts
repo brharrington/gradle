@@ -23,8 +23,8 @@ open class Consumer : DefaultTask() {
     }
 }
 
-task<Producer>("producer")
-task<Consumer>("consumer")
+val producer by tasks.creating(Producer::class)
+val consumer by tasks.creating(Consumer::class)
 
 // Wire the property from producer to consumer task
 // Don't need to add a task dependency to the consumer task. This is automatically added

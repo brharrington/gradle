@@ -50,7 +50,7 @@ source {
     configFile = project.layout.projectDirectory.file('src/main/config.txt')
 
     // Note that a `File` instance can be used as a convenience to set a location
-    configFile = file('src/main/config.txt')
+    configFile = file('src/config.txt')
 }
 
 // Change the build directory
