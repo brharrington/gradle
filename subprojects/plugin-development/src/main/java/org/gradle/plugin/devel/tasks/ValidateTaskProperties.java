@@ -18,7 +18,6 @@ package org.gradle.plugin.devel.tasks;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -198,7 +197,7 @@ public class ValidateTaskProperties extends ConventionTask implements Verificati
             File output = outputFile.get().getAsFile();
             //noinspection ResultOfMethodCallIgnored
             output.createNewFile();
-            Files.write(Joiner.on('\n').join(problemMessages), output, Charsets.UTF_8);
+            Files.asCharSink(output, Charsets.UTF_8).writeLines(problemMessages, "\n");
         }
     }
 

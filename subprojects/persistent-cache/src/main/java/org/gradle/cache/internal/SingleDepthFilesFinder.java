@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 
@@ -82,9 +83,10 @@ public class SingleDepthFilesFinder implements FilesFinder {
             return stack.size() == targetSize && stack.getLast().hasNext();
         }
 
+        @SuppressWarnings("Since15")
         private Iterator<File> listFiles(File baseDir) {
             File[] files = baseDir.listFiles(filter);
-            return files == null ? Iterators.<File>emptyIterator() : Iterators.forArray(files);
+            return files == null ? Collections.<File>emptyIterator() : Iterators.forArray(files);
         }
     }
 }
