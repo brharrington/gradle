@@ -1,10 +1,10 @@
 // A project extension
 open class SourceGenerationExtension(objects: ObjectFactory) {
     // The directory to write the generated source files to
-    val someDirectory: DirectoryProperty = objects.directoryProperty()
+    val sourceDir: DirectoryProperty = objects.directoryProperty()
 
     // The configuration file to use for source generation
-    val someFile: RegularFileProperty = objects.fileProperty()
+    val configFile: RegularFileProperty = objects.fileProperty()
 }
 
 // A task that generates a source file and writes the result to an output directory
