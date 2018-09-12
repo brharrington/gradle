@@ -11,7 +11,7 @@ repositories {
 dependencies {
     integTestCompile libraries.groovy.coordinates
     integTestCompile libraries.ant.coordinates
-    integTestCompile testLibraries.jsoup
+    integTestCompile libraries.jsoup.coordinates
     integTestCompile testLibraries.sampleCheck
 
     integTestRuntime allTestRuntimeDependencies

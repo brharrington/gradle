@@ -38,7 +38,7 @@ dependencies {
     compile(library("guava"))
     compile(library("slf4j_api"))
 
-    testCompile(testLibrary("jsoup"))
+    testCompile(library("jsoup"))
 
     integTestRuntime(project(":toolingApiBuilders"))
 

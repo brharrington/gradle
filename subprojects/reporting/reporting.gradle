@@ -17,7 +17,7 @@ dependencies {
     compile project(':core')
     compile libraries.jatl.coordinates
 
-    testCompile testLibraries.jsoup
+    testCompile libraries.jsoup.coordinates
     integTestRuntime project(':codeQuality')
     integTestRuntime project(':jacoco')
 

@@ -21,7 +21,7 @@ dependencies {
     compile project(':core')
     compile project(':plugins')
     compile project(':reporting')
-    testCompile testLibraries.jsoup
+    testCompile libraries.jsoup.coordinates
     testCompile project(':internalIntegTesting')
 }
 

@@ -64,7 +64,7 @@ dependencies {
 
     runtimeOnly project(":docs")
 
-    testImplementation testLibraries.jsoup
+    testImplementation libraries.jsoup.coordinates
     testImplementation libraries.log4j_to_slf4j.coordinates
     testImplementation libraries.jcl_to_slf4j.coordinates
 

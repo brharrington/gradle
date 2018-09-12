@@ -38,7 +38,7 @@ dependencies {
     compile(library("junit"))
     testLibraries("jmock").forEach { compile(it) }
     compile(testLibrary("spock"))
-    compile(testLibrary("jsoup"))
+    compile(library("jsoup"))
 }
 
 gradlebuildJava {

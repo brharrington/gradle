@@ -44,7 +44,7 @@ dependencies {
 
     testFixturesCompile project(":internalIntegTesting")
 
-    testCompile testLibraries.jsoup
+    testCompile libraries.jsoup.coordinates
 
     integTestRuntime project(":maven")
 }
