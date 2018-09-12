@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ComponentMetadataRule
-
-import org.gradle.kotlin.dsl.*
+import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.attributes.Attribute
+import org.gradle.api.attributes.HasConfigurableAttributes
+import org.gradle.kotlin.dsl.extra
+import org.gradle.util.GradleVersion
 
 
 // This file contains Kotlin extensions for the gradle/gradle build
@@ -48,15 +50,25 @@ fun Project.testLibrary(name: String): String =
     testLibraries[name]!! as String
 
 
+// TODO: Remove this with Gradle 5 native "platform" support once we build using a compatible nightly
+val gradle5CategoryAttribute = Attribute.of("org.gradle.component.category", String::class.java)
+
+
+fun DependencyHandler.gradle5Platform(name: Any) = create(name).apply {
+    if (GradleVersion.current().baseVersion >= GradleVersion.version("5.0")) {
+        if (this is HasConfigurableAttributes<*>) {
+            attributes {
+                attribute(gradle5CategoryAttribute, "platform")
+            }
+        }
+    }
+}
+
+
 // TODO:kotlin-dsl Remove work around for https://github.com/gradle/kotlin-dsl/issues/639 once fixed
 @Suppress("unchecked_cast")
 fun Project.testLibraries(name: String): List<String> =
     testLibraries[name]!! as List<String>
-
-
-@Suppress("unchecked_cast")
-val Project.cglibWithoutAntRule
-    get() = rootProject.extra["cglibWithoutAntRule"] as Class<out ComponentMetadataRule>
 
 
 val Project.maxParallelForks: Int
