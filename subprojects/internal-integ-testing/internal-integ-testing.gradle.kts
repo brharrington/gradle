@@ -24,7 +24,7 @@ dependencies {
     compile(project(":launcher"))
     compile(project(":native"))
     compile(testLibrary("jetty"))
-    compile("org.littleshoot:littleproxy:1.1.0-beta1")
+    compile("com.github.adamfisk:LittleProxy:70edbe1c50")
     compile(library("gcs"))
     compile(library("commons_httpclient"))
     compile(library("joda"))
