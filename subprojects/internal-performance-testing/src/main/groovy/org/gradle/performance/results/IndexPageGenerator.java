@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import org.gradle.performance.measure.DataSeries;
 import org.gradle.performance.measure.Duration;
+import org.gradle.performance.util.Git;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +39,6 @@ import static java.util.Comparator.comparingDouble;
 
 public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
     public static final int DANGEROUS_REGRESSION_CONFIDENCE_THRESHOLD = 90;
-    public static final int REGRESSION_CONFIDENCE_THRESHOLD = 99;
     private final Set<ScenarioBuildResultData> scenarios;
     private final ResultsStore resultsStore;
 
@@ -52,7 +52,7 @@ public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
         try {
             Comparator<ScenarioBuildResultData> comparator = comparing(ScenarioBuildResultData::isBuildFailed).reversed()
                 .thenComparing(ScenarioBuildResultData::isSuccessful)
-                .thenComparing(ScenarioBuildResultData::isAboutToRegress)
+                .thenComparing(comparing(ScenarioBuildResultData::isAboutToRegress).reversed())
                 .thenComparing(comparingDouble(ScenarioBuildResultData::getConfidencePercentage).reversed())
                 .thenComparing(comparingDouble(ScenarioBuildResultData::getRegressionPercentage).reversed())
                 .thenComparing(ScenarioBuildResultData::getScenarioName);
@@ -85,7 +85,7 @@ public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
             .filter(testExecution -> !testExecution.getTotalTime().isEmpty())
             .collect(Collectors.toList());
         if (nonEmptyExecutions.size() > 1) {
-            return new ScenarioBuildResultData.ExecutionData(performanceTestExecution.getStartTime(), nonEmptyExecutions.get(0), nonEmptyExecutions.get(1));
+            return new ScenarioBuildResultData.ExecutionData(performanceTestExecution.getStartTime(), performanceTestExecution.getVcsCommits().get(0), nonEmptyExecutions.get(0), nonEmptyExecutions.get(1));
         } else {
             return null;
         }
@@ -104,7 +104,7 @@ public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
                         title().text("Profile report for channel " + ResultsStoreHelper.determineChannel()).end();
                     end();
                     body();
-                        div().id("acoordion").classAttr("w-75 mx-auto");
+                        div().id("acoordion").classAttr("mx-auto");
                         renderHeader();
                         renderTable();
                     end();
@@ -116,15 +116,18 @@ public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
                 long successCount = scenarios.stream().filter(ScenarioBuildResultData::isSuccessful).count();
                 long failureCount = scenarios.size() - successCount;
                 div().classAttr("row alert alert-primary m-0");
-                    div().classAttr("col-10 p-0");
+                    div().classAttr("col").text("#").end();
+                    div().classAttr("col-9 p-0");
                         text("Scenarios (" + successCount + " successful");
                         if (failureCount > 0) {
                             text(", " + failureCount + " failed");
                         }
                         text(")");
+                        String commitId = Git.current().getCommitId();
+                        a().target("_blank").href("https://github.com/gradle/gradle/commits/"+ commitId).small().classAttr("text-muted").text(commitId).end().end();
                     end();
-                    div().classAttr("col").small().text("Difference").end().end();
-                    div().classAttr("col").small().text("Confidence").end().end();
+                    div().classAttr("col").text("Difference").end();
+                    div().classAttr("col").text("Confidence").end();
                 end();
             }
 
@@ -146,8 +149,6 @@ public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
             private String getTextColorCss(ScenarioBuildResultData.ExecutionData executionData) {
                 if (executionData.getRegressionPercentage() <= 0 || executionData.getConfidencePercentage() < DANGEROUS_REGRESSION_CONFIDENCE_THRESHOLD) {
                     return "text-success";
-                } else if (executionData.getConfidencePercentage() < REGRESSION_CONFIDENCE_THRESHOLD) {
-                    return "text-warning";
                 } else {
                     return "text-danger";
                 }
@@ -157,11 +158,12 @@ public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
                 div().classAttr("card m-0 p-0 alert alert-" + determineScenarioCss(scenario));
                     div().id("heading" + index).classAttr("card-header");
                         div().classAttr("row align-items-center");
-                            div().classAttr("col-10");
+                            div().classAttr("col").text(String.valueOf(index)).end();
+                            div().classAttr("col-9");
                                 big().text(scenario.getScenarioName()).end();
-                                a().target("_blank").classAttr("btn btn-primary btn-sm").href(scenario.getWebUrl()).text("To build").end();
-                                a().target("_blank").classAttr("btn btn-primary btn-sm").href("tests/" + urlEncode(scenario.getScenarioName().replaceAll("\\s+", "-") + ".html")).text("See graph").end();
-                                a().classAttr("btn btn-primary btn-sm collapsed").href("#").attr("data-toggle", "collapse", "data-target", "#collapse" + index).text("Show details").end();
+                                a().target("_blank").classAttr("btn btn-primary btn-sm").href(scenario.getWebUrl()).text("To the build").end();
+                                a().target("_blank").classAttr("btn btn-primary btn-sm").href("tests/" + urlEncode(scenario.getScenarioName().replaceAll("\\s+", "-") + ".html")).text("See the graph").end();
+                                a().classAttr("btn btn-primary btn-sm collapsed").href("#").attr("data-toggle", "collapse", "data-target", "#collapse" + index).text("Show more details").end();
                             end();
                             div().classAttr("col-2");
                                 if(scenario.isBuildFailed()) {
@@ -183,7 +185,7 @@ public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
                     div().id("collapse" + index).classAttr("collapse");
                         div().classAttr("card-body");
                             if(scenario.isBuildFailed()) {
-                                pre().text(scenario.getTestStderr()).end();
+                                pre().text(scenario.getTestFailure()).end();
                             } else {
                                 renderDetailsTable(scenario);
                             }
@@ -196,6 +198,7 @@ public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
                 table().classAttr("table table-condensed table-bordered");
                     tr();
                         th().text("Date").end();
+                        th().text("Commit").end();
                         th().colspan("2").text(scenario.getExecutions().get(0).getBaseVersion().getName()).end();
                         th().colspan("2").text(scenario.getExecutions().get(0).getCurrentVersion().getName()).end();
                     end();
@@ -204,6 +207,7 @@ public class IndexPageGenerator extends HtmlPageGenerator<ResultsStore> {
                             DataSeries<Duration> baseVersion = execution.getBaseVersion().getTotalTime();
                             DataSeries<Duration> currentVersion = execution.getCurrentVersion().getTotalTime();
                             td().text(format.timestamp(execution.getTime())).end();
+                            td().text(execution.getCommitId()).end();
                             td().classAttr(baseVersion.getMedian().compareTo(currentVersion.getMedian()) < 0 ? "text-success" : "text-danger").text(baseVersion.getMedian().format()).end();
                             td().classAttr("text-muted").text("se: " + baseVersion.getStandardError().format()).end();
                             td().classAttr(baseVersion.getMedian().compareTo(currentVersion.getMedian()) >= 0 ? "text-success" : "text-danger").text(currentVersion.getMedian().format()).end();
